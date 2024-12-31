@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="process_flow">
+    <insert id="insert" parameterType="org.example.imooc_oa.Entity.ProcessFlow" useGeneratedKeys="true" keyProperty="processId" keyColumn="process_id">
+        INSERT INTO adm_process_flow
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="formId != null">`form_id`,</if>
+            <if test="operatorId != null">`operator_id`,</if>
+            <if test="action != null">`action`,</if>
+            <if test="result != null">`result`,</if>
+            <if test="reason != null">`reason`,</if>
+            <if test="createTime != null">`create_time`,</if>
+            <if test="auditTime != null">`audit_time`,</if>
+            <if test="orderNo != null">`order_no`,</if>
+            <if test="state != null">`state`,</if>
+            <if test="isLast != null">`is_last`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="formId != null">#{formId},</if>
+            <if test="operatorId != null">#{operatorId},</if>
+            <if test="action != null">#{action},</if>
+            <if test="result != null">#{result},</if>
+            <if test="reason != null">#{reason},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="auditTime != null">#{auditTime},</if>
+            <if test="orderNo != null">#{orderNo},</if>
+            <if test="state != null">#{state},</if>
+            <if test="isLast != null">#{isLast},</if>
+        </trim>
+    </insert>
+
+    <select id="selectByOperatorId" parameterType="long" resultType="org.example.imooc_oa.Entity.ProcessFlow">
+        select * from adm_process_flow where operator_id = #{operatorId}
+    </select>
+    <select id="selectById" parameterType="long" resultType="org.example.imooc_oa.Entity.ProcessFlow">
+        select * from adm_process_flow where process_id=#{processId};
+    </select>
+    <update id="updateProcessFlow" parameterType="java.util.Map">
+        update adm_process_flow
+        set result=#{result} , reason=#{reason}, state='complete',audit_time='auditTime'
+        where form_id=#{formId} and operator_id=#{operatorId}
+    </update>
+    <select id="selectApplicantByFormId" parameterType="long" resultType="long">
+        SELECT operator_id
+        FROM adm_process_flow
+        WHERE form_id = #{formId}
+        ORDER BY process_id ASC
+        LIMIT 1;
+    </select>
+    <select id="selectLeaderIdByFormId" parameterType="long" resultType="long">
+        SELECT operator_id
+        FROM adm_process_flow
+        WHERE form_id = #{formId}
+        ORDER BY process_id DESC
+        LIMIT 1;
+    </select>
+</mapper>

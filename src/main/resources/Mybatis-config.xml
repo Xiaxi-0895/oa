@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <environments default="dev">   <!-- 默认使用id为dev的数据库配置-->
+        <environment id="dev">
+            <!-- 使用jdbc方式对事物进行commit/rollback -->
+            <transactionManager type="JDBC"/>
+            <dataSource type="org.example.imooc_oa.Druid.DruidDataSourceFactory"> <!-- 采用连接池方式管理数据库 -->
+                <property name="url" value="jdbc:mysql://192.168.127.134:3306/imooc-oa?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai"/>
+                <property name="username" value="root"/>
+                <property name="password" value="Xiaxi@0730"/>
+                <property name="initialSize" value="10"/>
+                <property name="maxActive" value="20"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource="mappers/user.xml" />
+        <mapper resource="mappers/rbac.xml"/>
+        <mapper resource="mappers/employee.xml"/>
+        <mapper resource="mappers/leave_form.xml"/>
+        <mapper resource="mappers/process_flow.xml"/>
+        <mapper resource="mappers/notice.xml"/>
+        <mapper resource="mappers/department.xml"/>
+    </mappers>
+
+</configuration>

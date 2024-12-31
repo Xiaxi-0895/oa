@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="assets/axios/axios.js"></script>
+    <script src="assets/vue/vue.global.js"></script>
+    <script src="assets/element-plus/index.full.js"></script>
+    <script src="assets/element-plus/locale/zh-cn.js"></script>
+    <link rel="stylesheet" href="assets/element-plus/index.css">
+    <script src="assets/element-plus/index.iide.min.js"></script>
+    <script src="security.js"></script>
+    <style>
+        .el-header{
+            background-color: rgb(238, 241, 246);
+            color: #333;
+            line-height: 60px;
+        }
+        html, body, #app{
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            max-height: 100%;
+        }
+        .el-container{
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            max-height: 100%;
+        }
+        .example-showcase{
+            cursor: pointer;
+            color: var(--el-color-primary);
+            display: flex;
+            align-items: center;
+        }
+        .el-dropdown-link{
+            cursor: pointer;
+            color: var(--el-color-primary);
+            display: flex;
+            align-items: center;
+        }
+        .el-icon{
+            vertical-align: middle;
+        }
+    </style>
+
+
+</head>
+<body>
+
+<div id="app" class="common-layout">
+    <el-container style="height: 100%;border: 1px solid #eee">
+        <el-header>
+            <el-row>
+                <el-col :span="12">
+                    <span style="font-size:18px;color: darkcyan">OA办公系统</span>
+                </el-col>
+                <el-col :span="12" style="text-align: right">
+                    <el-dropdown style="vertical-align:middle" trigger="click">
+                        <span class="el-dropdown-link">
+                            <el-icon><User /></el-icon>
+                            {{employee.name}}[{{employee.title}}]
+                        <el-icon class="el-icon--right" style="vertical-align: middle">
+                            <arrow-down/>
+                        </el-icon>
+                        </span>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item v-on:click="logout">注销</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                </el-col>
+            </el-row>
+        </el-header>
+        <el-container>
+            <el-aside style="width:200px;background-color: rgb(238,241,246);max-height: 100%">
+                <el-menu style="width: 190px;margin-left: 5px"
+                         default-active="2"
+                         class="el-menu-vertical-demo"
+                         @open="handleOpen"
+                         @close="handleClose">
+                    <template v-for="(n,idx) in nodelist">
+                        <el-sub-menu :index="idx.toString()" style="width: 190px">
+                            <template #title>
+                                <el-icon>
+                                    <Setting style="width: 1em; height: 1em; margin-right: 8px"/>
+                                </el-icon>
+                                {{n.node.nodeName}}
+                            </template>
+                            <template v-for="child in n.children">
+                                <el-menu-item :index="child.nodeId.toString()" v-on:click="showPage(child.url)">
+                                    {{child.nodeName}}
+                                </el-menu-item>
+                            </template>
+                        </el-sub-menu>
+                    </template>
+                </el-menu>
+            </el-aside>
+            <el-container>
+                <el-main>
+                    <iframe id="main" name="main" src="" style="width: 100%;height: 95%;border: 0px"></iframe>
+                </el-main>
+                <el-footer></el-footer>
+            </el-container>
+        </el-container>
+    </el-container>
+</div>
+<script>
+    const Main = {
+        data() {
+            return {
+                nodelist: [],
+                employee:{}
+            }
+        },
+        methods: {
+            showPage(url) {
+                document.getElementById("main").src = url;
+            },
+            logout(){
+                sessionStorage.clear()
+                window.location.replace('/login.html')
+            }
+        },
+        mounted() {
+            const objApp = this;
+            axios.get("/api/user_info?userId=" + sessionStorage.userId+"&employeeId="+sessionStorage.employeeId)
+                .then(function (response) {
+                    const json = response.data
+                    json.data.nodelist.forEach(function (item) {
+                        objApp.nodelist.push(item)
+                    })
+                    objApp.employee = json.data.employee
+                })
+        }
+    }
+    const app = Vue.createApp(Main)
+    for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+        app.component(key, component)
+    }//初始化element plus icon组件用以初始化所有的图标
+    app.use(ElementPlus, {
+        locale: ElementPlusLocaleZhCn,
+    })//使用vue来调用ElementPlus组件使得el-开头的组件能被正确渲染
+    app.mount("#app")
+    window.addEventListener('message', function(event) {
+        const iframe = document.getElementById("main");
+        if (event.data === 'refreshData') {
+            iframe.contentWindow.location.reload();
+        }else if(event.data === 'showDialog'){
+            alert("请假单已提交,等待上级审批")
+            iframe.contentWindow.location.replace("/notice.html")
+        }
+    });
+</script>
+</body>
+</html>
